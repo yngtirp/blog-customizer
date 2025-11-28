@@ -1,6 +1,6 @@
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Select } from 'src/ui/select';
 import { Text } from 'src/ui/text';
@@ -17,19 +17,29 @@ import {
 } from 'src/constants/articleProps';
 import { OnClick } from 'src/ui/arrow-button/ArrowButton';
 import { Separator } from 'src/ui/separator';
+import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
 
 export type ArticleParamsFormProps = {
 	toggleOpenFunction: OnClick;
 	isOpen: boolean;
 	setPageState: React.Dispatch<React.SetStateAction<ArticleStateType>>;
+	setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const ArticleParamsForm = ({
 	toggleOpenFunction,
 	isOpen,
 	setPageState,
+	setOpen
 }: ArticleParamsFormProps) => {
 	const [formState, setFormState] = useState(defaultArticleState);
+	const rootRef = useRef(null)
+	useOutsideClickClose({
+		isOpen,
+		rootRef,
+		onClose: () => {setOpen(!isOpen)},
+		onChange: () => {}
+	})
 
 	const handleSubmitForm = (evt: React.SyntheticEvent) => {
 		evt.preventDefault();
@@ -45,7 +55,7 @@ export const ArticleParamsForm = ({
 		<>
 			<ArrowButton isOpen={isOpen} onClick={toggleOpenFunction} />
 			<aside
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
+				className={clsx(styles.container, { [styles.container_open]: isOpen })} ref={rootRef}>
 				<form className={styles.form} onSubmit={handleSubmitForm}>
 					<Text as='h1' size={31} weight={800} uppercase dynamicLite>
 						Задайте параметры
